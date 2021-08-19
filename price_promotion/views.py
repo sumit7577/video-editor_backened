@@ -1,5 +1,7 @@
-from django.http import JsonResponse,HttpResponse
-from rest_framework.parsers import JSONParser
+from urllib import parse
+from django.http import JsonResponse,HttpResponse, multipartparser
+from django.views.generic.base import RedirectView
+from rest_framework.parsers import FileUploadParser, JSONParser, MultiPartParser
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate
@@ -56,6 +58,8 @@ def get_token(request):
         return JsonResponse({"status":"success","token": "Token "+ token.key})
     except Exception as e:
         return JsonResponse({"status":"failure", "response": f"{e}"})
+
+
 
 def get_video_clip(start, stop, rotate=False, filepath='sadhguru.webm'):
     clip = VideoFileClip(filepath)
@@ -155,8 +159,9 @@ def create_price_tag(request):
 @csrf_exempt
 def upload(request):
     # try:
-    request_body = JSONParser().parse(request)
-    path = request_body['path']
+    if(request.user.username == ""):
+        return JsonResponse({"status":"error","message":"Please login first"})
+    path = request.FILES["path"]
     File.objects.update_or_create(userName=request.user,file=path)
     # db = mongo_conn()
     # file_data = open(path, 'rb')
@@ -164,9 +169,11 @@ def upload(request):
     # fs = gridfs.GridFS(db)
     # fs.put(data, file_name=path.split('/')[-1])
     print('upload completed')
-    return JsonResponse({"status":"success", "path":path})
+    return JsonResponse({"status":"success","message":"File uploaded"})
     # except Exception as e:
     #     return JsonResponse({"status":"failure", "response": f"{e}"})
+
+
 
 
 @api_view(["GET"])
