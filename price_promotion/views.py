@@ -1,9 +1,9 @@
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate
-from price_promotion import models
+from .models import *
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
@@ -12,7 +12,10 @@ import gridfs
 from moviepy.editor import *
 import numpy as np
 import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw 
+from PIL import Image, ImageDraw
+from frozen_brothers import settings
+import zipfile
+
 
 @api_view(['POST'])
 def user_logout(request):
@@ -31,6 +34,8 @@ def user_logout(request):
     except Exception as e:
         print(f'abms_logout: {e}')
         return JsonResponse({"status":"failure","response":f"User logout failed..{e}"})
+
+
 
 @api_view(['POST'])
 @csrf_exempt
@@ -59,6 +64,8 @@ def get_video_clip(start, stop, rotate=False, filepath='sadhguru.webm'):
     if clip.size[0] < clip.size[1]:
         clip = clip.rotate(90)
     return clip
+
+
 
 @api_view(['POST'])
 @csrf_exempt
@@ -142,13 +149,15 @@ def create_price_tag(request):
 #         return conn.grid_file
 #     except Exception as e:
 #         print('error in conn', e)
-        
+
+
 @api_view(['POST'])
 @csrf_exempt
 def upload(request):
     # try:
     request_body = JSONParser().parse(request)
     path = request_body['path']
+    File.objects.update_or_create(userName=request.user,file=path)
     # db = mongo_conn()
     # file_data = open(path, 'rb')
     # data = file_data.read()
@@ -158,4 +167,32 @@ def upload(request):
     return JsonResponse({"status":"success", "path":path})
     # except Exception as e:
     #     return JsonResponse({"status":"failure", "response": f"{e}"})
+
+
+@api_view(["GET"])
+def download(request):
+    FileData = File.objects.filter(userName=request.user)
+    if len(FileData) == 0:
+        return JsonResponse({"status":"No file"})
+    string = FileData[0].userName.username+".zip"
+    app = settings.BASE_DIR+"\\"+string
+
+    if os.path.exists(app):
+        os.remove(app)
+
+    with zipfile.ZipFile(string, "w", compression=zipfile.ZIP_DEFLATED) as file:
+        for i in FileData:
+            file.write(settings.MEDIA_ROOT+"\\videos\\"+i.file)
+        file.close()
+
+    with open(app, "rb") as f:
+        response = HttpResponse(
+            f.read(), content_type="application/files")
+        response['Content-Disposition'] = 'inline;filename=' + \
+            os.path.basename(app)
+        try:
+            return response
+        except:
+            return JsonResponse({"status":"failed"})
+
     
