@@ -1,10 +1,8 @@
-from urllib import parse
-from django.http import JsonResponse,HttpResponse, multipartparser
-from django.views.generic.base import RedirectView
-from rest_framework.parsers import FileUploadParser, JSONParser, MultiPartParser
+from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate
+from rest_framework.parsers import JSONParser
 from .models import *
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import logout
@@ -178,6 +176,8 @@ def upload(request):
 
 @api_view(["GET"])
 def download(request):
+    if(request.user.username == ""):
+        return JsonResponse({"status":"error","message":"Please login first"})
     FileData = File.objects.filter(userName=request.user)
     if len(FileData) == 0:
         return JsonResponse({"status":"No file"})

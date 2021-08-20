@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^logout$', views.user_logout, name='logout_user'),
     url(r'^upload$', views.upload, name='upload video'),
     url(r'^price_tag$', views.create_price_tag, name='create price_tag'),
+    path("download",views.download,name="downlaod")
 ]
