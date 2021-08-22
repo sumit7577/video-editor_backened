@@ -1,10 +1,9 @@
 from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,login,logout
 from rest_framework.parsers import JSONParser
 from .models import *
-from rest_framework.authtoken.models import Token
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from pymongo import MongoClient
@@ -15,25 +14,16 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
 from frozen_brothers import settings
 import zipfile
+import random
 
-
-@api_view(['POST'])
+@api_view(['GET'])
 def user_logout(request):
     try:
-        request_body = JSONParser().parse(request)
-        username = request_body['username']
-        user_id = User.objects.get(username=username).id
-        try:
             # del request.session[user]
-            Token.objects.filter(user_id=user_id).delete()
-            logout(request)
-            return JsonResponse({"status":"success","response":f"{username} logged out"})
-        except: return JsonResponse({"status":"failure","response":f"{username} already logged out"})
-    except User.DoesNotExist:
-        return JsonResponse({"status":"failure","response":f"User does not exist"})
-    except Exception as e:
-        print(f'abms_logout: {e}')
-        return JsonResponse({"status":"failure","response":f"User logout failed..{e}"})
+        logout(request)
+        return JsonResponse({"status":"success","response":f"{request.user} logged out"})
+    except: 
+        return JsonResponse({"status":"failure","response":f"{request.user} already logged out"})
 
 
 
@@ -47,13 +37,14 @@ def get_token(request):
         user = authenticate(username=user, password=password)
         if user is None:
             return JsonResponse({'status':'failed', 
-                                'token': None, 
+                                'ID': None, 
                                 'response': 'Please provide correct username and password'})
         else:
+            id = random.randint(10000,100000)
+            request.session["id"] = id
             print(f"{user} autheticated successfully")
-            token, created = Token.objects.get_or_create(user=user)
-        token = Token.objects.get(user=user)
-        return JsonResponse({"status":"success","token": "Token "+ token.key})
+            login(request,user)
+            return JsonResponse({"status":"success","sessonId":id})
     except Exception as e:
         return JsonResponse({"status":"failure", "response": f"{e}"})
 
