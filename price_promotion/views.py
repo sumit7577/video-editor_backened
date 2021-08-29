@@ -87,6 +87,10 @@ def create_price_tag(icons,tags,rotate,request):
     tagIMage = tags[0]["image"]
     iconName = base(iconImage)
     tagName = base(tagIMage)
+
+    iconName1 = None
+    tagName1= None
+
     if len(icons) >1:
         iconImage1 = icons[1]["image"]
         iconLocation1 = icons[1]["location"]
@@ -97,8 +101,10 @@ def create_price_tag(icons,tags,rotate,request):
         tagLocation1 = tags[1]["location"]
         tagName1 = base(tagImage1)
 
-    videoFile = os.path.join(settings.BASE_DIR,request.session["video"])
+    #videoFile = os.path.join(settings.BASE_DIR,request.session["video"])
     test = os.path.join(settings.BASE_DIR,uploaded)
+    tagLogo1 = None
+    iconLogo1 = None
 
     if rotate:
         video = VideoFileClip(test,audio=True).rotate(90)
@@ -125,16 +131,22 @@ def create_price_tag(icons,tags,rotate,request):
     except Exception as le:
         print(f'left tag error {le}')
 
-    final = CompositeVideoClip([video,iconLogo,iconLogo1,tagLogo,tagLogo1])
+    if(iconLogo1 is not None and tagLogo1 is not None):
+        final = CompositeVideoClip([video,iconLogo,iconLogo1,tagLogo,tagLogo1])
+    elif(iconLogo1 is not None):
+        final = CompositeVideoClip([video,iconLogo,iconLogo1,tagLogo])
+    elif(tagLogo1 is not None):
+        final = CompositeVideoClip([video,iconLogo,tagLogo,tagLogo1])
+
     final.duration = video.reader.duration
     final.write_videofile("outputVideo.mp4", audio = True,threads=7)
     final.close()
     video.close()
     os.remove(iconName[0][0])
     os.remove(tagName[0][0])
-    if os.path.exists(iconName1[0][0]):
+    if(iconName1 is not None):
         os.remove(iconName1[0][0])
-    if os.path.exists(tagName1[0][0]):
+    if(tagName1 is not None):
         os.remove(tagName1[0][0])
 
 # def mongo_conn():
@@ -163,7 +175,7 @@ def upload(request):
     decodedFile = base(files)
     global uploaded
     uploaded = decodedFile[0][0]
-    request.session["video"] = decodedFile[0][0]
+    #request.session["video"] = decodedFile[0][0]
 
     #try:
     #except:
