@@ -112,22 +112,22 @@ def create_price_tag(icons,tags,rotate,request):
         video = VideoFileClip(test,audio=True)
 
     try:
-        iconLogo = ImageClip(iconName[0][0]).resize(height=100).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_pos((iconLocation,"bottom"))
+        iconLogo = ImageClip(iconName[0][0]).resize(height=40,width=50).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_pos((iconLocation,"bottom"))
     except Exception as re:
         print(f'right tag error {re}')
 
     try:
-        iconLogo1 = ImageClip(iconName1[0][0]).resize(height=100).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_pos((iconLocation1,"bottom"))
+        iconLogo1 = ImageClip(iconName1[0][0]).resize(height=40,width=50).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_pos((iconLocation1,"bottom"))
     except Exception as re:
         print(f'right tag error {re}')
 
     try:
-        tagLogo = ImageClip(tagName[0][0]).resize(height=100).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_pos((tagLocation,"top"))
+        tagLogo = ImageClip(tagName[0][0]).resize(height=80,width=50).margin(top=10,bottom=60,left=10,right=10, opacity=0).set_pos((tagLocation,"bottom"))
     except Exception as re:
         print(f'right tag error {re}')
 
     try:
-        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=100).set_pos((tagLocation1,"top")).margin(top=10,bottom=10,left=10,right=10, opacity=0)
+        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=80,width=50).set_pos((tagLocation1,"top")).margin(top=10,bottom=10,left=10,right=10, opacity=0)
     except Exception as le:
         print(f'left tag error {le}')
 
@@ -142,6 +142,10 @@ def create_price_tag(icons,tags,rotate,request):
     final.write_videofile("outputVideo.mp4", audio = True,threads=7)
     final.close()
     video.close()
+
+    if(os.path.exists(uploaded)):
+        os.remove(uploaded)
+        
     os.remove(iconName[0][0])
     os.remove(tagName[0][0])
     if(iconName1 is not None):
