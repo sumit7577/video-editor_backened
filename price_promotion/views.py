@@ -30,7 +30,7 @@ def user_logout(request):
             # del request.session[user]
             Token.objects.filter(user_id=user_id).delete()
             logout(request)
-            request.session["video"] = ""
+            #request.session["video"] = ""
             return JsonResponse({"status":"success","message":f"{username} logged out"})
         except: 
             return JsonResponse({"status":"failed","message":f"{username} already logged out"},status=403)
@@ -81,6 +81,7 @@ def base(text):
 
 
 def create_price_tag(icons,tags,rotate,request):
+    cords = tags[0]["coord"]
     iconLocation = icons[0]["location"]
     tagLocation = tags[0]["location"]
     iconImage = icons[0]["image"]
@@ -97,6 +98,7 @@ def create_price_tag(icons,tags,rotate,request):
         iconName1 = base(iconImage1)
 
     if len(tags) >1:
+        coords1 = tags[1]["coord"]
         tagImage1 = tags[1]["image"]
         tagLocation1 = tags[1]["location"]
         tagName1 = base(tagImage1)
@@ -123,29 +125,39 @@ def create_price_tag(icons,tags,rotate,request):
 
     try:
         tagLogo = ImageClip(tagName[0][0]).resize(height=80,width=50).margin(top=10,bottom=60,left=10,right=10, opacity=0).set_pos((tagLocation,"bottom"))
+        if(cords):
+            tagLogo = ImageClip(tagName[0][0]).resize(height=80,width=50).margin(top=10,bottom=60,left=10,right=10, opacity=0).set_pos((int(cords["x"]),int(cords["y"])))
+            
     except Exception as re:
         print(f'right tag error {re}')
 
     try:
         tagLogo1 = ImageClip(tagName1[0][0]).resize(height=80,width=50).set_pos((tagLocation1,"top")).margin(top=10,bottom=10,left=10,right=10, opacity=0)
+        if(coords1):
+            tagLogo1 = ImageClip(tagName1[0][0]).resize(height=80,width=50).set_pos((int(coords1["x"]),int(coords1["y"]))).margin(top=10,bottom=10,left=10,right=10, opacity=0)
+            
     except Exception as le:
         print(f'left tag error {le}')
 
-    if(iconLogo1 is not None and tagLogo1 is not None):
-        final = CompositeVideoClip([video,iconLogo,iconLogo1,tagLogo,tagLogo1])
-    elif(iconLogo1 is not None):
-        final = CompositeVideoClip([video,iconLogo,iconLogo1,tagLogo])
-    elif(tagLogo1 is not None):
-        final = CompositeVideoClip([video,iconLogo,tagLogo,tagLogo1])
+    final = CompositeVideoClip([video,iconLogo,tagLogo])
+    if(final):
+        if(iconLogo1 is not None and tagLogo1 is not None):
+            final = CompositeVideoClip([video,iconLogo,iconLogo1,tagLogo,tagLogo1])
+        elif(iconLogo1 is not None):
+            final = CompositeVideoClip([video,iconLogo,iconLogo1,tagLogo])
+        elif(tagLogo1 is not None):
+            final = CompositeVideoClip([video,iconLogo,tagLogo,tagLogo1])
+    else:
+        return JsonResponse({"status":"failed","message":"Please input atleast 1 icons and 1 tags"},status=400)
 
     final.duration = video.reader.duration
     final.write_videofile("outputVideo.mp4", audio = True,threads=7)
     final.close()
     video.close()
 
-    if(os.path.exists(uploaded)):
+    if(os.path.exists(uploaded) and uploaded !="video.mp4"):
         os.remove(uploaded)
-        
+
     os.remove(iconName[0][0])
     os.remove(tagName[0][0])
     if(iconName1 is not None):
