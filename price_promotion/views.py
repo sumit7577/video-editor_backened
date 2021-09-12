@@ -100,7 +100,7 @@ def create_price_tag(icons,tags,rotate,request):
     if len(tags) >1:
         coords1 = tags[1]["coord"]
         tagImage1 = tags[1]["image"]
-        tagLocation1 = tags[1]["location"]
+        tagLocation1 = tags[1]["location"] or "left"
         tagName1 = base(tagImage1)
 
     #videoFile = os.path.join(settings.BASE_DIR,request.session["video"])
@@ -124,20 +124,15 @@ def create_price_tag(icons,tags,rotate,request):
         print(f'right tag error {re}')
 
     try:
-        tagLogo = ImageClip(tagName[0][0]).resize(height=80,width=50).margin(top=10,bottom=60,left=10,right=10, opacity=0).set_pos((tagLocation,"bottom"))
-        if(cords):
-            tagLogo = ImageClip(tagName[0][0]).resize(height=80,width=50).margin(top=10,bottom=60,left=10,right=10, opacity=0).set_pos((int(cords["x"]),int(cords["y"])))
-            
+        tagLogo = ImageClip(tagName[0][0]).resize(height=80,width=50).margin(top=10,bottom=60,left=10,right=10, opacity=0).set_pos((tagLocation,"bottom")).set_position((float(cords["x"]),float(cords["y"])))
     except Exception as re:
-        print(f'right tag error {re}')
+        return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},staus=401)
 
     try:
-        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=80,width=50).set_pos((tagLocation1,"top")).margin(top=10,bottom=10,left=10,right=10, opacity=0)
-        if(coords1):
-            tagLogo1 = ImageClip(tagName1[0][0]).resize(height=80,width=50).set_pos((int(coords1["x"]),int(coords1["y"]))).margin(top=10,bottom=10,left=10,right=10, opacity=0)
+        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=80,width=50).set_pos((tagLocation1,"top")).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_position((float(cords["x"]),float(coords1["y"])))
             
     except Exception as le:
-        print(f'left tag error {le}')
+       return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},status=401)
 
     final = CompositeVideoClip([video,iconLogo,tagLogo])
     if(final):
