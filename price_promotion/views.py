@@ -79,6 +79,22 @@ def base(text):
     return list
 
 
+def fixCords(cords,coords1,videoSize):
+    height = videoSize[1]-100
+    width = videoSize[0]
+    if(cords):
+        if(float(cords["y"])) > float(height):
+            while(float(cords["y"]) > float(height)):
+                cords["y"] = float(cords["y"]) - 20
+
+
+    if(coords1):
+        if(float(coords1["y"])) > float(height):
+            while(float(coords1["y"]) > float(videoSize[1])):
+                coords1["y"] = float(coords1["y"]) - 20
+    
+    return(cords,coords1)
+
 
 def create_price_tag(icons,tags,rotate,request):
     cords = tags[0]["coord"]
@@ -112,6 +128,7 @@ def create_price_tag(icons,tags,rotate,request):
         video = VideoFileClip(test,audio=True).rotate(90)
     else:
         video = VideoFileClip(test,audio=True)
+    co_ordinates = fixCords(cords,coords1,video.size)
 
     try:
         iconLogo = ImageClip(iconName[0][0]).resize(height=40,width=50).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_pos((iconLocation,"bottom"))
@@ -121,15 +138,15 @@ def create_price_tag(icons,tags,rotate,request):
     try:
         iconLogo1 = ImageClip(iconName1[0][0]).resize(height=40,width=50).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_pos((iconLocation1,"bottom"))
     except Exception as re:
-        print(f'right tag error {re}')
+        print(f'left tag error {re}')
 
     try:
-        tagLogo = ImageClip(tagName[0][0]).resize(height=80,width=50).margin(top=10,bottom=60,left=10,right=10, opacity=0).set_pos((tagLocation,"bottom")).set_position((float(cords["x"]),float(cords["y"])))
+        tagLogo = ImageClip(tagName[0][0]).resize(height=60,width=50).set_position((float(cords["x"]),float(co_ordinates[0]["y"])))
     except Exception as re:
         return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},staus=401)
 
     try:
-        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=80,width=50).set_pos((tagLocation1,"top")).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_position((float(cords["x"]),float(coords1["y"])))
+        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=60,width=50).set_position((float(coords1["x"]),float(co_ordinates[1]["y"])))
             
     except Exception as le:
        return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},status=401)
@@ -229,8 +246,7 @@ def download(request):
 
     #if len(FileData) == 0:
     #    return JsonResponse({"status":"No file"})
-    string = "outputVideo.mp4"
-    app = os.path.join(settings.BASE_DIR,string)
+    app = "outputVideo.mp4"
 
     with open(app, "rb") as f:
         response = HttpResponse(
