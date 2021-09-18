@@ -30,6 +30,8 @@ def user_logout(request):
             # del request.session[user]
             Token.objects.filter(user_id=user_id).delete()
             logout(request)
+            if(os.path.exists(uploaded) and uploaded !="video.mp4"):
+                os.remove(uploaded)
             #request.session["video"] = ""
             return JsonResponse({"status":"success","message":f"{username} logged out"})
         except: 
@@ -80,8 +82,8 @@ def base(text):
 
 
 def fixCords(cords,coords1,videoSize):
-    height = videoSize[1]-100
-    width = videoSize[0]-100
+    height = videoSize[1]-95
+    width = videoSize[0]-95
     if(cords):
         if(float(cords["y"])) > float(height):
             while(float(cords["y"]) > float(height)):
@@ -89,7 +91,7 @@ def fixCords(cords,coords1,videoSize):
 
         if(float(cords["x"]) > float(width)):
             while(float(cords["x"]) > float(width)):
-                cords["x"] = float(cords["x"]) -50
+                cords["x"] = float(cords["x"]) -20
 
 
     if(coords1):
@@ -99,7 +101,7 @@ def fixCords(cords,coords1,videoSize):
         
         if(float(coords1["x"]) > float(width)):
             while(float(coords1["x"]) > float(width)):
-                coords1["x"] = float(coords1["x"]) -50
+                coords1["x"] = float(coords1["x"]) -20
     
     return(cords,coords1)
 
@@ -137,7 +139,6 @@ def create_price_tag(icons,tags,rotate,request):
     else:
         video = VideoFileClip(test,audio=True)
     co_ordinates = fixCords(cords,coords1,video.size)
-    print(co_ordinates)
 
     try:
         iconLogo = ImageClip(iconName[0][0]).resize(height=40,width=50).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_pos((iconLocation,"bottom"))
@@ -150,12 +151,12 @@ def create_price_tag(icons,tags,rotate,request):
         print(f'left tag error {re}')
 
     try:
-        tagLogo = ImageClip(tagName[0][0]).resize(height=60,width=50).set_position((float(co_ordinates[0]["x"]),float(co_ordinates[0]["y"])))
+        tagLogo = ImageClip(tagName[0][0]).resize(height=110,width=50).set_position((float(co_ordinates[0]["x"]),float(co_ordinates[0]["y"])))
     except Exception as re:
         return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},staus=401)
 
     try:
-        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=60,width=50).set_position((float(co_ordinates[1]["x"]),float(co_ordinates[1]["y"])))
+        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=110,width=50).set_position((float(co_ordinates[1]["x"]),float(co_ordinates[1]["y"])))
             
     except Exception as le:
        return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},status=401)
@@ -175,9 +176,6 @@ def create_price_tag(icons,tags,rotate,request):
     final.write_videofile("outputVideo.mp4", audio = True,threads=7)
     final.close()
     video.close()
-
-    if(os.path.exists(uploaded) and uploaded !="video.mp4"):
-        os.remove(uploaded)
 
     os.remove(iconName[0][0])
     os.remove(tagName[0][0])
