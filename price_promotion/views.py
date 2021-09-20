@@ -81,13 +81,15 @@ def base(text):
     return list
 
 
-def fixCords(cords,coords1,videoSize):
+def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
     height = videoSize[1]-95
     width = videoSize[0]-95
+    print(cords,videoSize)
+
     if(cords):
         if(float(cords["y"])) > float(height):
             while(float(cords["y"]) > float(height)):
-                cords["y"] = float(cords["y"]) - 20
+                cords["y"] = float(cords["y"]) -20
 
         if(float(cords["x"]) > float(width)):
             while(float(cords["x"]) > float(width)):
@@ -96,31 +98,59 @@ def fixCords(cords,coords1,videoSize):
 
     if(coords1):
         if(float(coords1["y"])) > float(height):
-            while(float(coords1["y"]) > float(videoSize[1])):
+            while(float(coords1["y"]) > float(height)):
                 coords1["y"] = float(coords1["y"]) - 20
         
         if(float(coords1["x"]) > float(width)):
             while(float(coords1["x"]) > float(width)):
                 coords1["x"] = float(coords1["x"]) -20
+
+    if(iconsCords):
+        if(float(iconsCords["y"])) > float(videoSize[1]-30):
+            while(float(iconsCords["y"]) > float(videoSize[1]-30)):
+                iconsCords["y"] = float(iconsCords["y"]) - 20
+        
+        if(float(iconsCords["x"]) > float(width)):
+            while(float(iconsCords["x"]) > float(width)):
+                iconsCords["x"] = float(iconsCords["x"]) -20
+
+    if(iconsCords1):
+        if(float(iconsCords1["y"])) > float(videoSize[1]-30):
+            while(float(iconsCords1["y"]) > float(videoSize[1]-30)):
+                iconsCords1["y"] = float(iconsCords1["y"]) - 20
+                
+        
+        if(float(iconsCords1["x"]) > float(width)):
+            while(float(iconsCords1["x"]) > float(width)):
+                iconsCords1["x"] = float(iconsCords1["x"]) -20
+
+
     
-    return(cords,coords1)
+    return(cords,coords1,iconsCords,iconsCords1)
 
 
 def create_price_tag(icons,tags,rotate,request):
     cords = tags[0]["coord"]
     iconLocation = icons[0]["location"]
     tagLocation = tags[0]["location"]
-    iconImage = icons[0]["image"]
+    iconsCords = icons[0]["coord"]
+    try:
+        iconImage = icons[0]["image"]
+        iconName = base(iconImage)
+    except:
+        iconImage = None
     tagIMage = tags[0]["image"]
-    iconName = base(iconImage)
     tagName = base(tagIMage)
 
     iconName1 = None
     tagName1= None
+    iconsCords1 = None
+    coords1 = None
 
     if len(icons) >1:
         iconImage1 = icons[1]["image"]
         iconLocation1 = icons[1]["location"]
+        iconsCords1 = icons[1]["coord"]
         iconName1 = base(iconImage1)
 
     if len(tags) >1:
@@ -138,15 +168,15 @@ def create_price_tag(icons,tags,rotate,request):
         video = VideoFileClip(test,audio=True).rotate(90)
     else:
         video = VideoFileClip(test,audio=True)
-    co_ordinates = fixCords(cords,coords1,video.size)
+    co_ordinates = fixCords(cords,coords1,iconsCords,iconsCords1,video.size)
 
     try:
-        iconLogo = ImageClip(iconName[0][0]).resize(height=40,width=50).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_pos((iconLocation,"bottom"))
+        iconLogo = ImageClip(iconName[0][0]).resize(height=40,width=50).set_position((float(co_ordinates[2]["x"]),float(co_ordinates[2]["y"])))
     except Exception as re:
         print(f'right tag error {re}')
 
     try:
-        iconLogo1 = ImageClip(iconName1[0][0]).resize(height=40,width=50).margin(top=10,bottom=10,left=10,right=10, opacity=0).set_pos((iconLocation1,"bottom"))
+        iconLogo1 = ImageClip(iconName1[0][0]).resize(height=40,width=50).set_position((float(co_ordinates[3]["x"]),float(co_ordinates[3]["y"])))
     except Exception as re:
         print(f'left tag error {re}')
 
@@ -161,7 +191,10 @@ def create_price_tag(icons,tags,rotate,request):
     except Exception as le:
        return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},status=401)
 
-    final = CompositeVideoClip([video,iconLogo,tagLogo])
+    if(iconImage):
+        final = CompositeVideoClip([video,iconLogo,tagLogo])
+    else:
+        final = CompositeVideoClip([video,tagLogo])
     if(final):
         if(iconLogo1 is not None and tagLogo1 is not None):
             final = CompositeVideoClip([video,iconLogo,iconLogo1,tagLogo,tagLogo1])
