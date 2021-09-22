@@ -84,7 +84,6 @@ def base(text):
 def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
     height = videoSize[1]-95
     width = videoSize[0]-95
-    print(cords,videoSize)
 
     if(cords):
         if(float(cords["y"])) > float(height):
@@ -93,17 +92,17 @@ def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
 
         if(float(cords["x"]) > float(width)):
             while(float(cords["x"]) > float(width)):
-                cords["x"] = float(cords["x"]) -20
+                cords["x"] = float(cords["x"]) -15
 
 
     if(coords1):
         if(float(coords1["y"])) > float(height):
             while(float(coords1["y"]) > float(height)):
-                coords1["y"] = float(coords1["y"]) - 20
+                coords1["y"] = float(coords1["y"]) -20
         
         if(float(coords1["x"]) > float(width)):
             while(float(coords1["x"]) > float(width)):
-                coords1["x"] = float(coords1["x"]) -20
+                coords1["x"] = float(coords1["x"]) -15
 
     if(iconsCords):
         if(float(iconsCords["y"])) > float(videoSize[1]-30):
@@ -181,12 +180,12 @@ def create_price_tag(icons,tags,rotate,request):
         print(f'left tag error {re}')
 
     try:
-        tagLogo = ImageClip(tagName[0][0]).resize(height=110,width=50).set_position((float(co_ordinates[0]["x"]),float(co_ordinates[0]["y"])))
+        tagLogo = ImageClip(tagName[0][0]).resize(height=100,width=50).set_position((float(co_ordinates[0]["x"]),float(co_ordinates[0]["y"])))
     except Exception as re:
         return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},staus=401)
 
     try:
-        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=110,width=50).set_position((float(co_ordinates[1]["x"]),float(co_ordinates[1]["y"])))
+        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=100,width=50).set_position((float(co_ordinates[1]["x"]),float(co_ordinates[1]["y"])))
             
     except Exception as le:
        return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},status=401)
