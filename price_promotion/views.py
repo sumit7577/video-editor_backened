@@ -17,7 +17,7 @@ import random
 import string
 
 
-uploaded = "video.mp4"
+uploaded =["video.mp4"]
 
 @api_view(['POST'])
 @csrf_exempt
@@ -79,6 +79,41 @@ def base(text):
         file.write(fileData)
     list.append([newExtension,fileData])
     return list
+
+
+
+def videoBase(files):
+    list = []
+    if(len(files) == 1):
+        fileName = files[0]["base64String"].split(";")
+        newFileName = fileName[0][5:]
+        front = random.choices(string.ascii_lowercase,k=5)
+        stringData = ""
+        for i in front:
+            stringData += i
+        extension = newFileName.replace("/",".")
+        newExtension = stringData+"_"+extension
+        fileData = base64.b64decode(fileName[1][7:])
+        with open(newExtension,"wb") as file:
+            file.write(fileData)
+        list.append(newExtension)
+    else:
+        for i in files:
+            fileName = i["base64String"].split(";")
+            newFileName = fileName[0][5:]
+            front = random.choices(string.ascii_lowercase,k=5)
+            stringData = ""
+            for j in front:
+                stringData += j
+            extension = newFileName.replace("/",".")
+            newExtension = stringData+"_"+extension
+            fileData = base64.b64decode(fileName[1][7:])
+            with open(newExtension,"wb") as file:
+                file.write(fileData)
+            list.append(newExtension)
+
+    return list
+
 
 
 def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
@@ -159,7 +194,16 @@ def create_price_tag(icons,tags,rotate,request):
         tagName1 = base(tagImage1)
 
     #videoFile = os.path.join(settings.BASE_DIR,request.session["video"])
-    test = os.path.join(settings.BASE_DIR,uploaded)
+    if len(uploaded == 1):
+        test = os.path.join(settings.BASE_DIR,uploaded[0])
+    else:
+        videoList = []
+        for i in uploaded:
+            video = VideoFileClip(i,audio=True)
+            video.duration = video.reader.duration
+            videoList.append(video)
+        test = concatenate_videoclips(videoList)
+    
     tagLogo1 = None
     iconLogo1 = None
 
@@ -239,9 +283,10 @@ def upload(request):
         return JsonResponse({"status":"failed","message":"Please input valid Token"},status=401)
     #username = data[0].user
     files = request_body["path"]
-    decodedFile = base(files)
+    decodedFiles = videoBase(files)
     global uploaded
-    uploaded = decodedFile[0][0]
+    uploaded = decodedFiles
+
     #request.session["video"] = decodedFile[0][0]
 
     #try:
