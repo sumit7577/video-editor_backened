@@ -30,8 +30,9 @@ def user_logout(request):
             # del request.session[user]
             Token.objects.filter(user_id=user_id).delete()
             logout(request)
-            if(os.path.exists(uploaded) and uploaded !="video.mp4"):
-                os.remove(uploaded)
+            if(os.path.exists(uploaded[0]) and uploaded[0] !="video.mp4"):
+                for i in uploaded:
+                    os.remove(i)
             #request.session["video"] = ""
             return JsonResponse({"status":"success","message":f"{username} logged out"})
         except: 
