@@ -195,15 +195,20 @@ def create_price_tag(icons,tags,rotate,request):
         tagName1 = base(tagImage1)
 
     #videoFile = os.path.join(settings.BASE_DIR,request.session["video"])
-    if len(uploaded == 1):
+    if len(uploaded) == 1:
         test = os.path.join(settings.BASE_DIR,uploaded[0])
     else:
         videoList = []
+        final_duration = 0
         for i in uploaded:
             video = VideoFileClip(i,audio=True)
             video.duration = video.reader.duration
             videoList.append(video)
-        test = concatenate_videoclips(videoList)
+            final_duration += video.duration
+        final = concatenate_videoclips(videoList)
+        final.duration = final_duration
+        final.write_videofile("merged.mp4",audio=True,threads=4)
+        test = "merged.mp4"
     
     tagLogo1 = None
     iconLogo1 = None
