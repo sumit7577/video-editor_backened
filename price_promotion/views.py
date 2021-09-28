@@ -17,7 +17,7 @@ import random
 import string
 
 
-uploaded =["video.mp4"]
+uploaded = ["video.mp4"]
 
 @api_view(['POST'])
 @csrf_exempt
@@ -195,19 +195,9 @@ def create_price_tag(icons,tags,rotate,request):
         tagName1 = base(tagImage1)
 
     #videoFile = os.path.join(settings.BASE_DIR,request.session["video"])
-    if len(uploaded) == 1:
-        test = os.path.join(settings.BASE_DIR,uploaded[0])
+    if(len(uploaded) == 1):
+        test = os.path.join(settings.BASE_DIR+uploaded[0])
     else:
-        videoList = []
-        final_duration = 0
-        for i in uploaded:
-            video = VideoFileClip(i,audio=True)
-            video.duration = video.reader.duration
-            videoList.append(video)
-            final_duration += video.duration
-        final = concatenate_videoclips(videoList)
-        final.duration = final_duration
-        final.write_videofile("merged.mp4",audio=True,threads=4)
         test = "merged.mp4"
     
     tagLogo1 = None
@@ -292,6 +282,31 @@ def upload(request):
     decodedFiles = videoBase(files)
     global uploaded
     uploaded = decodedFiles
+    if len(uploaded) == 1:
+        pass
+    else:
+        videoList = []
+        final_duration = 0
+        for i in uploaded:
+            video = VideoFileClip(i,audio=True)
+            video.duration = video.reader.duration
+            videoList.append(video)
+            final_duration += video.duration
+        final = concatenate_videoclips(videoList)
+        final.duration = final_duration
+        final.write_videofile("merged.mp4",audio=True,threads=4)
+    name = "merged.mp4"
+
+    with open(name, "rb") as f:
+        response = HttpResponse(
+            f.read(), content_type="application/files")
+        response['Content-Disposition'] = 'inline;filename=' + \
+            os.path.basename(name)
+
+    try:
+        return response
+    except:
+        return JsonResponse({"status":"failed","message":"Something error happened"},status=500)
 
     #request.session["video"] = decodedFile[0][0]
 
@@ -304,7 +319,7 @@ def upload(request):
     # data = file_data.read()
     # fs = gridfs.GridFS(db)
     # fs.put(data, file_name=path.split('/')[-1]
-    return JsonResponse({"status":"success","message":"File uploaded"})
+    
     # except Exception as e:
     #     return JsonResponse({"status":"failure", "response": f"{e}"})
 
