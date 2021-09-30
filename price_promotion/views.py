@@ -288,7 +288,7 @@ def upload(request):
         videoList = []
         final_duration = 0
         for i in uploaded:
-            video = VideoFileClip(i,audio=True)
+            video = VideoFileClip(i,audio=True,target_resolution=(200,200))
             video.duration = video.reader.duration
             videoList.append(video)
             final_duration += video.duration
