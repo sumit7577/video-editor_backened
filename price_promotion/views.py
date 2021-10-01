@@ -196,7 +196,7 @@ def create_price_tag(icons,tags,rotate,request):
 
     #videoFile = os.path.join(settings.BASE_DIR,request.session["video"])
     if(len(uploaded) == 1):
-        test = os.path.join(settings.BASE_DIR+uploaded[0])
+        test = os.path.join(settings.BASE_DIR,uploaded[0])
     else:
         test = "merged.mp4"
     
@@ -283,7 +283,7 @@ def upload(request):
     global uploaded
     uploaded = decodedFiles
     if len(uploaded) == 1:
-        pass
+        name = uploaded[0]
     else:
         videoList = []
         final_duration = 0
@@ -295,7 +295,7 @@ def upload(request):
         final = concatenate_videoclips(videoList)
         final.duration = final_duration
         final.write_videofile("merged.mp4",audio=True,threads=4)
-    name = "merged.mp4"
+        name = "merged.mp4"
 
     with open(name, "rb") as f:
         response = HttpResponse(
