@@ -122,8 +122,8 @@ def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
     width = videoSize[0]-95
 
     if(cords):
-        if(float(cords["y"])) > float(height):
-            while(float(cords["y"]) > float(height)):
+        if(float(cords["y"])) > float(height-20):
+            while(float(cords["y"]) > float(height-20)):
                 cords["y"] = float(cords["y"]) -20
 
         if(float(cords["x"]) > float(width)):
@@ -132,8 +132,8 @@ def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
 
 
     if(coords1):
-        if(float(coords1["y"])) > float(height):
-            while(float(coords1["y"]) > float(height)):
+        if(float(coords1["y"])) > float(height-30):
+            while(float(coords1["y"]) > float(height-30)):
                 coords1["y"] = float(coords1["y"]) -20
         
         if(float(coords1["x"]) > float(width)):
