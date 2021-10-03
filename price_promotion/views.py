@@ -122,8 +122,8 @@ def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
     width = videoSize[0]-95
 
     if(cords):
-        if(float(cords["y"])) > float(height-20):
-            while(float(cords["y"]) > float(height-20)):
+        if(float(cords["y"])) > float(height-35):
+            while(float(cords["y"]) > float(height-35)):
                 cords["y"] = float(cords["y"]) -20
 
         if(float(cords["x"]) > float(width)):
@@ -220,12 +220,12 @@ def create_price_tag(icons,tags,rotate,request):
         print(f'left tag error {re}')
 
     try:
-        tagLogo = ImageClip(tagName[0][0]).resize(height=100,width=50).set_position((float(co_ordinates[0]["x"]),float(co_ordinates[0]["y"])))
+        tagLogo = ImageClip(tagName[0][0]).resize(height=90,width=50).set_position((float(co_ordinates[0]["x"]),float(co_ordinates[0]["y"])))
     except Exception as re:
         return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},staus=401)
 
     try:
-        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=100,width=50).set_position((float(co_ordinates[1]["x"]),float(co_ordinates[1]["y"])))
+        tagLogo1 = ImageClip(tagName1[0][0]).resize(height=90,width=50).set_position((float(co_ordinates[1]["x"]),float(co_ordinates[1]["y"])))
             
     except Exception as le:
        return JsonResponse({"status":"failed","message":"Please enter float type co-ordinates values"},status=401)
