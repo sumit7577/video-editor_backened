@@ -204,9 +204,9 @@ def create_price_tag(icons,tags,rotate,request):
     iconLogo1 = None
 
     if rotate:
-        video = VideoFileClip(test,audio=True).rotate(90)
+        video = VideoFileClip(test,audio=True,target_resolution=(480,480)).rotate(90)
     else:
-        video = VideoFileClip(test,audio=True)
+        video = VideoFileClip(test,audio=True,target_resolution=(480,480))
     co_ordinates = fixCords(cords,coords1,iconsCords,iconsCords1,video.size)
 
     try:
