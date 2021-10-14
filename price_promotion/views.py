@@ -122,7 +122,7 @@ def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
     width = videoSize[0]-95
 
     if(cords):
-        if(float(cords["y"])) > float(height-35):
+        if(float(cords["y"]) > float(height-35)):
             while(float(cords["y"]) > float(height-35)):
                 cords["y"] = float(cords["y"]) -20
 
@@ -132,7 +132,7 @@ def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
 
 
     if(coords1):
-        if(float(coords1["y"])) > float(height-30):
+        if(float(coords1["y"]) > float(height-30)):
             while(float(coords1["y"]) > float(height-30)):
                 coords1["y"] = float(coords1["y"]) -20
         
@@ -141,26 +141,24 @@ def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
                 coords1["x"] = float(coords1["x"]) -15
 
     if(iconsCords):
-        if(float(iconsCords["y"])) > float(videoSize[1]-30):
+        if(float(iconsCords["y"]) > float(videoSize[1]-30)):
             while(float(iconsCords["y"]) > float(videoSize[1]-30)):
                 iconsCords["y"] = float(iconsCords["y"]) - 20
         
-        if(float(iconsCords["x"]) > float(width-90)):
-            while(float(iconsCords["x"]) > float(width-90)):
+        if(float(iconsCords["x"]) > float(width)):
+            while(float(iconsCords["x"]) > float(width)):
                 iconsCords["x"] = float(iconsCords["x"]) -20
 
     if(iconsCords1):
-        if(float(iconsCords1["y"])) > float(videoSize[1]-30):
+        if(float(iconsCords1["y"]) > float(videoSize[1]-30)):
             while(float(iconsCords1["y"]) > float(videoSize[1]-30)):
                 iconsCords1["y"] = float(iconsCords1["y"]) - 20
                 
         
-        if(float(iconsCords1["x"]) > float(width-90)):
-            while(float(iconsCords1["x"]) > float(width-90)):
+        if(float(iconsCords1["x"]) > float(width)):
+            while(float(iconsCords1["x"]) > float(width)):
                 iconsCords1["x"] = float(iconsCords1["x"]) -20
 
-
-    
     return(cords,coords1,iconsCords,iconsCords1)
 
 
