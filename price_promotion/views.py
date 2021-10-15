@@ -202,18 +202,18 @@ def create_price_tag(icons,tags,rotate,request):
     iconLogo1 = None
 
     if rotate:
-        video = VideoFileClip(test,audio=True,target_resolution=(480,480)).rotate(90)
+        video = VideoFileClip(test,audio=True,target_resolution=(650,650)).rotate(90)
     else:
-        video = VideoFileClip(test,audio=True,target_resolution=(480,480))
+        video = VideoFileClip(test,audio=True,target_resolution=(650,650))
     co_ordinates = fixCords(cords,coords1,iconsCords,iconsCords1,video.size)
 
     try:
-        iconLogo = ImageClip(iconName[0][0]).resize(height=40,width=50).set_position((float(co_ordinates[2]["x"]),float(co_ordinates[2]["y"])))
+        iconLogo = ImageClip(iconName[0][0]).resize(height=40,width=50).set_position( ( float(co_ordinates[2]["x"]), float(co_ordinates[2]["y"]) ) )
     except Exception as re:
         print(f'right tag error {re}')
 
     try:
-        iconLogo1 = ImageClip(iconName1[0][0]).resize(height=40,width=50).set_position((float(co_ordinates[3]["x"]),float(co_ordinates[3]["y"])))
+        iconLogo1 = ImageClip(iconName1[0][0]).resize(height=40,width=50).set_position( ( float(co_ordinates[3]["x"]) , float(co_ordinates[3]["y"]) ) )
     except Exception as re:
         print(f'left tag error {re}')
 
@@ -286,7 +286,7 @@ def upload(request):
         videoList = []
         final_duration = 0
         for i in uploaded:
-            video = VideoFileClip(i,audio=True,target_resolution=(480,480))
+            video = VideoFileClip(i,audio=True,target_resolution=(650,650))
             video.duration = video.reader.duration
             videoList.append(video)
             final_duration += video.duration
