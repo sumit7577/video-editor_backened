@@ -73,9 +73,13 @@ def base(text):
     stringData = ""
     for i in front:
         stringData += i
+
     extension = newFileName.replace("/",".")
     newExtension = stringData+"_"+extension
-    fileData = base64.b64decode(fileName[1][7:])
+    try:
+        fileData = base64.b64decode(fileName[2][7:])
+    except:
+        fileData = base64.b64decode(fileName[1][7:])
     with open(newExtension,"wb") as file:
         file.write(fileData)
     list.append([newExtension,fileData])
