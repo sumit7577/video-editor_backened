@@ -1,3 +1,5 @@
+from fileinput import filename
+from bson import decode
 from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
@@ -15,7 +17,7 @@ import base64
 from frozen_brothers import settings
 import random
 import string
-
+from .models import FileName
 
 uploaded = ["video.mp4"]
 
@@ -25,14 +27,14 @@ def user_logout(request):
     try:
         request_body = JSONParser().parse(request)
         username = request_body['username']
-        user_id = User.objects.get(username=username).id
+        user_id = User.objects.get(username=username)
         try:
             # del request.session[user]
-            Token.objects.filter(user_id=user_id).delete()
+            fileData = FileName.objects.get(userName=user_id)
+            Token.objects.filter(user_id=user_id.id).delete()
             logout(request)
-            if(os.path.exists(uploaded[0]) and uploaded[0] !="video.mp4"):
-                for i in uploaded:
-                    os.remove(i)
+            if(os.path.exists(fileData.fileName) and fileData.fileName !="video.mp4"):
+                os.remove(fileData.fileName)
             #request.session["video"] = ""
             return JsonResponse({"status":"success","message":f"{username} logged out"})
         except: 
@@ -166,7 +168,7 @@ def fixCords(cords,coords1,iconsCords,iconsCords1,videoSize):
     return(cords,coords1,iconsCords,iconsCords1)
 
 
-def create_price_tag(icons,tags,rotate,request):
+def create_price_tag(icons,tags,rotate,user):
     cords = tags[0]["coord"]
     iconLocation = icons[0]["location"]
     tagLocation = tags[0]["location"]
@@ -197,10 +199,11 @@ def create_price_tag(icons,tags,rotate,request):
         tagName1 = base(tagImage1)
 
     #videoFile = os.path.join(settings.BASE_DIR,request.session["video"])
-    if(len(uploaded) == 1):
-        test = os.path.join(settings.BASE_DIR,uploaded[0])
-    else:
-        test = "merged.mp4"
+    fileData = FileName.objects.get(userName=user[0])
+    try:
+        test = os.path.join(settings.BASE_DIR,fileData.fileName)
+    except Exception as e:
+        test = os.path.join(settings.BASE_DIR,"video.mp4")
     
     tagLogo1 = None
     iconLogo1 = None
@@ -276,7 +279,7 @@ def upload(request):
         token = request.headers["Authorization"][7:]
     except:
         return JsonResponse({"status":"failed","message":"Please insert Token in header"},status=403)
-    data = Token.objects.filter(key=token)
+    data = User.objects.filter(auth_token=token)
     if not data:
         return JsonResponse({"status":"failed","message":"Please input valid Token"},status=401)
     #username = data[0].user
@@ -284,9 +287,15 @@ def upload(request):
     decodedFiles = videoBase(files)
     global uploaded
     uploaded = decodedFiles
-    if len(uploaded) == 1:
+    if len(decodedFiles) == 1:
+        file = FileName.objects.get(userName=data[0])
+        file.fileName = decodedFiles[0]
+        file.save()
         name = uploaded[0]
     else:
+        file = FileName.objects.get(userName=data[0])
+        file.fileName = "merged.mp4"
+        file.save()
         videoList = []
         final_duration = 0
         for i in uploaded:
@@ -342,14 +351,14 @@ def download(request):
 
     try:
         token = request.headers["Authorization"][7:]
-        userId = User.objects.filter(auth_token__key= token)
+        userId = User.objects.filter(auth_token= token)
         if(not userId):
             return JsonResponse({"status":"failed","message":"Please input valid Token"},status=401)
         #username = userId[0].id
     except:
         return JsonResponse({"status":"failed","message":"Please insert Token in header"},status=403)
     
-    create_price_tag(icons,tags,rotate,request)
+    create_price_tag(icons,tags,rotate,userId)
 
     #if len(FileData) == 0:
     #    return JsonResponse({"status":"No file"})

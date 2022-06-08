@@ -8,3 +8,10 @@ class File(models.Model):
 
     def __str__(self) -> str:
         return self.userName.username
+
+class FileName(models.Model):
+    userName = models.OneToOneField(User,on_delete=models.CASCADE)
+    fileName = models.CharField(max_length=200,default="Test.mp4",blank=True,unique=False)
+
+    def __str__(self) -> str:
+        return self.fileName
